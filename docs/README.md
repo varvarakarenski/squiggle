@@ -1,10 +1,13 @@
+![Squiggle Demo](../images/squiggle_demo.png)
+# Installing Squiggle
+
+Squiggle can be found on Visual Studio Code Marketplace! Find us at https://marketplace.visualstudio.com/items?itemName=varvarakarenski.squiggle-vscode 
+
 # Squiggle
 
-> 💫 The Greek prefix "meta-" can mean "beyond" or "transcending." How can you understand your code errors *beyond* what's shown in your editor?
+Squiggle is a VS Code extension for people learning a new programming language. When you get a "Problem" notification in VSCode, a side panel explains what the error means, why it probably happened, and how to fix it. 
 
-Your editor shows you *that* something is wrong. Squiggle tells you *why*, in plain language, right next to your code.
-
-Squiggle is a VS Code extension for people learning a new programming language. When a red squiggle stays put, a side panel explains what the error means, why it probably happened, and how to fix it.
+We were inspired by the little red squiggle you get under spelling errors!
 
 ---
 
@@ -16,17 +19,15 @@ Squiggle is a VS Code extension for people learning a new programming language. 
 
 ---
 
-## The solution
-
-Squiggle removes every step between "I see an error" and "I understand the fix." There's no button to press and nothing to copy. Look right, and the explanation is already there.
+## Features
 
 Every explanation has the same three parts:
 - **Headline:** what happened, in one line.
 - **Cause:** why it happened.
 - **Fix:** what to change, often with a code example.
 
-**Features**
-- **Automatic, but not naggy:** it waits until you stop typing, so half-typed lines never trigger an explanation.
+**Details**
+- **Automatic, but not naggy:** it waits until you stop typing, so half-typed lines won't trigger an explanation.
 - **Save-aware:** "12s after you saved auth.py" helps you connect a new error to the change that caused it.
 - **Familiar error titles:** each error is shown the way a terminal prints it, with its language, file, line and source.
 - **Tunable:** sliders for patience before explaining, how much hand-holding you want, and how much nearby code is used.
@@ -39,9 +40,9 @@ Every explanation has the same three parts:
 
 | Language | Built-in explanations |
 |---|---|
-| Python | 55 common errors |
-| JavaScript | 25 common errors |
-| TypeScript | 16 TypeScript-specific errors, plus all the JavaScript ones |
+| Python | 80 common errors |
+| JavaScript | 48 common errors |
+| TypeScript | 31 TypeScript-specific errors, plus all the JavaScript ones |
 
 Errors outside the library still get a general explanation from pattern rules.
 
@@ -49,19 +50,13 @@ Errors outside the library still get a general explanation from pattern rules.
 
 ## How it works
 
-```
- 1. You make a mistake     2. The extension notices    3. The core waits until
-    → red squiggle            and sends it to the core    you stop typing
-                                                                 │
- 6. Explanation appears ←  5. Core sends it back   ←   4. Core explains it
-    in the side panel                                     (library → cache → rules)
-```
+1. You make a mistake, and VS Code underlines it with a red squiggle.
+2. Squiggle waits until you stop typing (so half-typed lines are ignored).
+3. Your error is cross-referenced with the explanation library (library → cache → rules).
+4. The explanation appears in the side panel.
 
-- **The VS Code extension** watches VS Code's errors and shows the explanation panel.
-- **The core** is a small background program on your computer. It decides when an error is real, looks it up, and sends the explanation back. It only accepts connections from your own machine.
-- **Explanations** come from a hand-written library of common errors first. Repeat errors come from a saved cache, and anything else is matched by pattern rules. All of this is instant, free and works offline.
-
-The core doesn't depend on VS Code, so other editors can plug into it later without a rewrite.
+- **The extension** watches the errors VS Code reports and shows the explanation panel.
+- **Explanations** come from a hand-written library of common errors first. Repeat errors come from a saved cache, and anything else is matched by pattern rules. Everything runs inside VS Code on your computer - making Squiggle instant, free, and offline.
 
 **Try it:** run `npm install`, then `npm run dev` to start the core. Then open this repo in VS Code and press **F5**, and open the **Squiggle** tab in the sidebar. Full steps are in [INSTALL.md](INSTALL.md).
 

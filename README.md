@@ -1,4 +1,4 @@
-<img src="../images/logo.png" alt="Squiggle logo" width="120">
+<img src="images/logo.png" alt="Squiggle logo" width="120">
 
 # Squiggle
 
@@ -6,7 +6,7 @@ Squiggle is a VS Code extension for people learning a new programming language. 
 
 We were inspired by the little red squiggle you get under spelling errors!
 
-![Squiggle demo](../images/squiggle_demo.png)
+![Squiggle demo](images/squiggle_demo.png)
 
 ## Installing
 
@@ -16,7 +16,7 @@ Get Squiggle on the [VS Code Marketplace](https://marketplace.visualstudio.com/i
 - [VS Code](https://code.visualstudio.com/) 1.106 or newer.
 - For Python, Microsoft's Python extension.
 
-After installing, open the **Squiggle** tab in the *secondary* sidebar. Troubleshooting tips are in [INSTALL.md](INSTALL.md).
+After installing, open the **Squiggle** tab in the *secondary* sidebar. Troubleshooting tips are in [INSTALL.md](docs/INSTALL.md).
 
 ---
 
@@ -83,4 +83,4 @@ Errors outside the library still get a general explanation from pattern rules.
 
 ## License
 
-[MIT](../packages/vscode/LICENSE)
+[MIT](packages/vscode/LICENSE)

@@ -3,12 +3,20 @@
   "displayName": "Squiggle",
   "description": "Explains errors in plain language.",
   "version": "0.0.1",
-  "private": true,
+  "icon": "media/logo.png",
+  "categories": ["Education", "Programming Languages"],
+  "keywords": ["errors", "explain", "beginner", "python", "typescript", "javascript"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shlok-afk/blank-page-hackathon"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
-  "main": "./out/extension.js",
-  "activationEvents": ["onStartupFinished"],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "contributes": {
     "viewsContainers": {
       "secondarySidebar": [
@@ -37,7 +45,7 @@
       },
       {
         "command": "squiggle.showWelcome",
-        "title": "Open Welcome & Setup",
+        "title": "Open Settings",
         "category": "Squiggle",
         "icon": "$(gear)"
       }
@@ -79,16 +87,15 @@
     }
   },
   "scripts": {
-    "build": "tsc -p .",
-    "watch": "tsc -w -p ."
+    "check-types": "tsc --noEmit",
+    "build": "npm run check-types && node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "vscode:prepublish": "npm run check-types && node esbuild.js --production"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "@types/vscode": "^1.85.0",
-    "@types/ws": "^8.18.2",
+    "esbuild": "^0.28.2",
     "typescript": "^5.4.0"
-  },
-  "dependencies": {
-    "ws": "^8.22.0"
   }
 }

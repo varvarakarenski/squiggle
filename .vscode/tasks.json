@@ -4,23 +4,9 @@
     {
       "label": "build extension",
       "type": "shell",
-      "command": "npx tsc -p .",
+      "command": "npm run build",
       "options": { "cwd": "${workspaceFolder}/packages/vscode" },
       "problemMatcher": "$tsc"
-    },
-    {
-      "label": "start core",
-      "type": "shell",
-      "command": "npm run dev",
-      "isBackground": true,
-      "problemMatcher": {
-        "pattern": { "regexp": "^__never__$" },
-        "background": { "activesBegin": true, "beginsPattern": "core started", "endsPattern": "listening on|already" }
-      }
-    },
-    {
-      "label": "build and start core",
-      "dependsOn": ["build extension", "start core"]
     }
   ]
 }

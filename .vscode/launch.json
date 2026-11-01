@@ -6,8 +6,8 @@
       "type": "extensionHost",
       "request": "launch",
       "args": ["--extensionDevelopmentPath=${workspaceFolder}/packages/vscode"],
-      "outFiles": ["${workspaceFolder}/packages/vscode/out/**/*.js"],
-      "preLaunchTask": "build and start core"
+      "outFiles": ["${workspaceFolder}/packages/vscode/dist/**/*.js"],
+      "preLaunchTask": "build extension"
     }
   ]
 }

@@ -10,7 +10,7 @@ const timers = new Map<string, ReturnType<typeof setTimeout>>();
 const FALLBACK: Explanation = {
   headline: 'The explainer could not handle this one',
   cause: 'Something inside the backend failed while working on this error.',
-  fix: 'Save the file again. If it keeps happening, check the core terminal for the real cause.',
+  fix: 'Save the file again to retry. If it keeps happening, the real cause is in the Extension Host log.',
   relatedSave: null,
 };
 

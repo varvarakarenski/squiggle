@@ -50,7 +50,13 @@ export function startServer(port = 4321) {
   const clients = new Map<string, WebSocket>();
   let counter = 0;
 
-  console.log('[server] listening on ws://localhost:' + port);
+  wss.on('listening', () => console.log('[server] listening on ws://localhost:' + port));
+  // A core from an earlier run still holds the port: reuse it instead of crashing F5.
+  wss.on('error', (e: NodeJS.ErrnoException) => {
+    if (e.code !== 'EADDRINUSE') throw e;
+    console.log('[server] core already running on port ' + port + ', reusing it');
+    process.exit(0);
+  });
 
   wss.on('connection', (ws) => {
     let pluginId: string | null = null;

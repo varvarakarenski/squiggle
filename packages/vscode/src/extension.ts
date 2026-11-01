@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
 import { SAMPLES } from './samples';
-import { connectToCore, diagnosticId } from './connection';
+import { watchDiagnostics, diagnosticId } from './diagnostics';
 import { ruleFix } from './fixes';
 
-// Messages the panel understands. `chunk` and `explanation` match the core protocol,
-// so UI 1 can forward core messages straight through.
+// Messages the panel understands. `start` and `explanation` match the core's
+// PanelMessage, so core output is forwarded straight through.
 export type PanelMessage =
   | { type: 'start'; id: string; title: string; language?: string; location?: string; source?: string }
   | { type: 'chunk'; id: string; delta: string }
@@ -65,7 +65,7 @@ class ExplanationPanel implements vscode.WebviewViewProvider {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-// The core sends whole explanations; play them out word by word so they read as live.
+// The core returns whole explanations; play them out word by word so they read as live.
 // ponytail: local animation, drop this once the core streams real `chunk`s.
 const streams = new Map<string, number>();
 async function streamText(panel: ExplanationPanel, id: string, text: string) {
@@ -149,7 +149,7 @@ async function migrateOldSettings() {
 export function activate(context: vscode.ExtensionContext) {
   migrateOldSettings();
   const panel = new ExplanationPanel(context.extensionUri);
-  const conn = connectToCore((m: PanelMessage) => {
+  const watcher = watchDiagnostics((m: PanelMessage) => {
     if (m.type === 'explanation') return streamText(panel, m.id, m.text);
     if (m.type === 'resolve') streams.delete(m.id); // stops any word-by-word playback for it
     panel.post(m);
@@ -160,7 +160,7 @@ export function activate(context: vscode.ExtensionContext) {
     }),
     vscode.commands.registerCommand('squiggle.playSamples', () => playSamples(panel)),
     vscode.commands.registerCommand('squiggle.showWelcome', openSettings),
-    { dispose: () => conn.stop() },
+    { dispose: () => watcher.stop() },
   );
 
   // First run only: pop the settings open so people see what they can tune.

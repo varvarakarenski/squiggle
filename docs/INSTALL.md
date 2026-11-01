@@ -13,34 +13,38 @@ Squiggle isn't published yet, so for now you run it from source in VS Code's Ext
 ```sh
 git clone https://github.com/shlok-afk/blank-page-hackathon.git squiggle
 cd squiggle
-npm install                       # core
+npm install                            # core dev tools
 npm install --prefix packages/vscode   # extension
 ```
+
+The core (`packages/core`) is bundled into the extension at build time and runs inside VS Code. There's no server to start.
 
 ## Run it
 
 1. Open the repo folder in VS Code.
 2. Press **F5** (or **Run → Start Debugging** and pick **Run Extension**).
-   This builds the extension, starts the core on `localhost:4321`, and opens a new VS Code window with Squiggle loaded.
+   This builds the extension and opens a new VS Code window with Squiggle loaded.
 3. In the new window, open the **Squiggle** tab in the secondary sidebar.
 4. Open a Python, JavaScript or TypeScript file and make a mistake. The explanation appears once you stop typing.
 
-No errors handy? Run **Squiggle: Play Sample Explanations** from the Command Palette.
+No errors handy? Open `demo/broken.py` or `demo/broken.ts`, or run **Squiggle: Play Sample Explanations** from the Command Palette.
 
-### Running the core by hand
+### Standalone core server (optional)
 
-F5 starts the core for you. To run it on its own:
+`npm run dev` runs the core as a WebSocket server on `localhost:4321`, for plugins for other editors. The VS Code extension doesn't use it.
+
+## Packaging
 
 ```sh
-npm run dev
+cd packages/vscode
+npx @vscode/vsce package   # makes squiggle-vscode-<version>.vsix
 ```
 
 ## Troubleshooting
 
-- **No explanations show up:** make sure the core is running and nothing else is using port 4321.
-- **`EADDRINUSE` when starting the core:** a core is already running, for example from an earlier F5. You can keep using that one, or stop it and start a new one.
-- **Extension doesn't load:** rebuild it with `npx tsc -p packages/vscode` and press F5 again.
+- **No explanations show up:** check **Output → Extension Host** in the development window for errors.
+- **Extension doesn't load:** rebuild it with `npm run build --prefix packages/vscode` and press F5 again.
 
 ## Future plans
 
-Squiggle will be packaged as a real VS Code extension and published to the VS Code Marketplace and Open VSX, so installing it will be one click with no cloning or F5. The core will ship bundled inside the extension and start automatically.
+Squiggle will be published to the VS Code Marketplace and Open VSX, so installing it will be one click with no cloning or F5.

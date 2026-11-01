@@ -1,90 +1,70 @@
-// DROP-IN for UI 1.
+// Watches VS Code's diagnostics and explains each new error with the core,
+// which is bundled into the extension and runs in-process.
 //
-// Copy this file to:  packages/vscode/src/connection.ts
-//
-// Then add these 3 lines to activate() in extension.ts:
-//
-//   const conn = connectToCore((m) => panel.post(m));
-//   context.subscriptions.push({ dispose: () => conn.stop() });
-//
-// ...and run:  npm i ws && npm i -D @types/ws   (inside packages/vscode)
-//
-// That is the entire integration. You do NOT translate anything: the core
-// sends `msg.panel`, which is already a list of messages your panel
-// understands. Forward it and you are done.
-//
-// Every VS Code gotcha (0-based lines, backslash paths, repeated diagnostics,
-// core not running yet) is handled below.
+// Every VS Code gotcha (0-based lines, backslash paths, repeated diagnostics)
+// is handled below.
 
 import * as vscode from 'vscode';
-import WebSocket from 'ws';
+import type { ErrorReportedMessage } from '../../protocol/src/index';
+import { onFileSaved, onError } from '../../core/src/pipeline';
+import { toDisplay, toPanelMessages } from '../../core/src/render';
 
-const CORE_URL = 'ws://localhost:4321';
-const RETRY_MS = 1500;
 // Hold off while the user is typing: `pri`, `prit`, `pritn` are each a different
 // "error" mid-word. Only check a file once it's been quiet this long (or on save).
 // Read on every keystroke, so changing it in Settings applies immediately.
 const typingIdleMs = () =>
   vscode.workspace.getConfiguration('squiggle').get<number>('patience', 1500);
 
-export type Connection = { stop: () => void };
+export type Watcher = { stop: () => void };
 
 // A card's id. Stable for the same error, which lets the panel update an existing
 // card instead of stacking a new one every time you type.
 export const diagnosticId = (uri: vscode.Uri, d: vscode.Diagnostic) =>
   [uri.fsPath, d.range.start.line + 1, d.range.start.character + 1, d.message].join(':');
 
-export function connectToCore(post: (message: any) => void): Connection {
-  let ws: WebSocket | undefined;
-  let retryTimer: ReturnType<typeof setTimeout> | undefined;
-  let stopped = false;
-
-  // Per file: the diagnostics we have already sent (key -> errorId), so that typing
-  // in a file does not re-send every squiggle it already has, and so we know
-  // which cards to remove once their error is gone.
+export function watchDiagnostics(post: (message: any) => void): Watcher {
+  // Per file: the diagnostics we have already explained (key -> errorId), so that
+  // typing in a file does not re-explain every squiggle it already has, and so we
+  // know which cards to remove once their error is gone.
   const reported = new Map<string, Map<string, string>>();
   const active = () => new Set([...reported.values()].flatMap((m) => [...m.values()]));
-
-  const isOpen = () => !!ws && ws.readyState === WebSocket.OPEN;
-
-  const sendRaw = (obj: any) => {
-    if (isOpen()) ws!.send(JSON.stringify(obj));
-  };
 
   const keyFor = (d: vscode.Diagnostic) =>
     (d.range.start.line + 1) + ':' + (d.range.start.character + 1) + ':' + d.message;
 
-  const idFor = (doc: vscode.TextDocument, d: vscode.Diagnostic) => diagnosticId(doc.uri, d);
-
-  const sendDiagnostic = (doc: vscode.TextDocument, d: vscode.Diagnostic) => {
+  const explainDiagnostic = async (doc: vscode.TextDocument, d: vscode.Diagnostic) => {
     // VS Code counts lines and columns from 0. The core counts from 1.
-    // Forget this and every line number in the demo is off by one.
-    const line = d.range.start.line + 1;
-    const column = d.range.start.character + 1;
     const config = vscode.workspace.getConfiguration('squiggle');
     const around = config.get<number>('contextLines', 10);
     const first = Math.max(0, d.range.start.line - around);
     const last = Math.min(doc.lineCount - 1, d.range.start.line + around);
 
-    sendRaw({
+    const report: ErrorReportedMessage = {
       type: 'error.reported',
-      errorId: idFor(doc, d),
+      errorId: diagnosticId(doc.uri, d),
       message: d.message,
       file: doc.uri.fsPath,
-      line,
-      column,
+      line: d.range.start.line + 1,
+      column: d.range.start.character + 1,
       language: doc.languageId,     // 'python', 'typescriptreact', ...
       severity: d.severity === vscode.DiagnosticSeverity.Error ? 'error' : 'warning',
       source: d.source,             // 'Pylance', 'ts(2339)', ...
       narration: config.get<number>('narration', 33),
       lineText: doc.lineAt(d.range.start.line).text,   // lets the core hand back this exact line, fixed
       context: around ? doc.getText(new vscode.Range(first, 0, last, doc.lineAt(last).text.length)) : '',
-    });
+    };
+
+    // No extra wait in the core: `patience` above already waited for typing to stop.
+    // onError never rejects; a failure comes back as a fallback explanation.
+    const explanation = await onError(report, 0);
+
+    // Skip answers for errors that were fixed while the core was thinking.
+    const live = active();
+    for (const m of toPanelMessages(toDisplay(report, explanation), report.errorId))
+      if (live.has(m.id)) post(m);
   };
 
   const syncUri = (uri: vscode.Uri) => {
-    if (!isOpen()) return;
-
     const doc = vscode.workspace.textDocuments.find(
       (t) => t.uri.toString() === uri.toString(),
     );
@@ -100,53 +80,14 @@ export function connectToCore(post: (message: any) => void): Connection {
 
     for (const d of errors) {
       const key = keyFor(d);
-      current.set(key, idFor(doc, d));
-      if (!previous.has(key)) sendDiagnostic(doc, d);
+      current.set(key, diagnosticId(doc.uri, d));
+      if (!previous.has(key)) explainDiagnostic(doc, d);
     }
 
     // Errors that are gone (fixed, or a half-typed word that got finished): drop their cards.
     for (const [key, id] of previous) if (!current.has(key)) post({ type: 'resolve', id });
 
     reported.set(uri.toString(), current);
-  };
-
-  const open = () => {
-    if (stopped) return;
-    ws = new WebSocket(CORE_URL);
-
-    ws.on('open', () => {
-      // Forget what we sent before: if the core restarted, its panel is empty
-      // and needs everything again. Ids are stable, so no duplicate cards.
-      reported.clear();
-      sendRaw({ type: 'hello', pluginId: 'vscode-' + process.pid, editor: 'vscode' });
-
-      // Catch up on whatever is already broken on screen.
-      for (const [uri] of vscode.languages.getDiagnostics()) syncUri(uri);
-    });
-
-    ws.on('message', (raw) => {
-      let msg: any;
-      try {
-        msg = JSON.parse(raw.toString());
-      } catch {
-        return;
-      }
-
-      // The core has already built finished renderer messages. Forward them.
-      // Skip answers for errors that were fixed while the core was thinking.
-      if (msg?.type === 'explanation' && Array.isArray(msg.panel)) {
-        const live = active();
-        for (const m of msg.panel) if (live.has(m.id)) post(m);
-      }
-    });
-
-    ws.on('close', () => {
-      ws = undefined;
-      if (stopped) return;
-      retryTimer = setTimeout(open, RETRY_MS);   // core not up yet - keep trying
-    });
-
-    ws.on('error', () => { /* 'close' always follows, which triggers the retry */ });
   };
 
   // Files the user is typing in, each with a timer that checks it once they stop.
@@ -166,7 +107,7 @@ export function connectToCore(post: (message: any) => void): Connection {
       typing.set(key, setTimeout(() => settle(e.document.uri), typingIdleMs()));
     }),
     vscode.workspace.onDidSaveTextDocument((doc) => {
-      sendRaw({ type: 'file.saved', file: doc.uri.fsPath });
+      onFileSaved(doc.uri.fsPath);
       settle(doc.uri); // saving means "I'm done typing"
     }),
     vscode.languages.onDidChangeDiagnostics((e) => {
@@ -175,15 +116,13 @@ export function connectToCore(post: (message: any) => void): Connection {
     }),
   ];
 
-  open();
+  // Catch up on whatever is already broken on screen.
+  for (const [uri] of vscode.languages.getDiagnostics()) syncUri(uri);
 
   return {
     stop() {
-      stopped = true;
-      clearTimeout(retryTimer);
       for (const t of typing.values()) clearTimeout(t);
       for (const s of subscriptions) s.dispose();
-      ws?.close();
     },
   };
 }

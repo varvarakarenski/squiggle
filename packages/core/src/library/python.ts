@@ -751,15 +751,6 @@ export const pythonErrors: LibraryEntry[] = [
     snippet: 'assert total == 10, f"total was {total}"',
   },
   {
-    id: 'py-keyboard-interrupt',
-    language: 'python',
-    pattern: /KeyboardInterrupt/,
-    headline: 'The program was stopped with Ctrl+C',
-    cause: 'This is not a bug - you (or the editor) pressed Ctrl+C. If you had to, the program may have been stuck in a loop.',
-    plain: "Ctrl+C is the emergency stop button for a program running in a terminal. Python prints this message when it's pressed.",
-    fix: 'If the program was stuck, check that every while loop changes something so its condition eventually becomes False.',
-  },
-  {
     id: 'py-overflow',
     language: 'python',
     pattern: /OverflowError|[Rr]esult too large/,

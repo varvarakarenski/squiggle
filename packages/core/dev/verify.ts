@@ -104,10 +104,10 @@ async function main() {
     !!libResult.headline && !!libResult.cause && !!libResult.fix && 'relatedSave' in libResult);
   check('a library fix carries a copy-paste snippet', !!libResult.snippet);
   check('the snippet renders as a copyable code block',
-    toMarkdown(libResult, 'python').includes('```python\n' + libResult.snippet + '\n```'));
+    toMarkdown(libResult, 3).includes('```line 3\n' + libResult.snippet + '\n```'));
 
   // Narration depth: each slider stop gives a different explanation.
-  const at = (n: number) => toMarkdown(libResult, 'python', depthOf(n));
+  const at = (n: number) => toMarkdown(libResult, 3, depthOf(n));
   check('the four narration stops each read differently', new Set([0, 33, 66, 100].map(at)).size === 4);
   check('pro skips the cause', !at(0).includes(libResult.cause));
   check('friendly uses the beginner wording', at(66).includes(libResult.plain!) && !at(66).includes(libResult.cause));

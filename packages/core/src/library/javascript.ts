@@ -23,7 +23,7 @@ export const javascriptErrors: LibraryEntry[] = [
   {
     id: 'js-dom-null',
     language: 'javascript',
-    pattern: /propert(y|ies) of null \((reading|setting) '(addEventListener|innerHTML|innerText|textContent|value|style|classList|appendChild|append|querySelector|setAttribute|getContext|focus|click|src)'\)/,
+    pattern: /propert(y|ies) of null \((reading|setting)/,
     headline: "The page element you looked up wasn't found",
     cause: 'getElementById or querySelector returned null - the id or selector is misspelled, or the script runs before the HTML has loaded.',
     plain: "document.getElementById(\"x\") searches the page for an element. It came back empty (null), so there's nothing to attach to or change.",

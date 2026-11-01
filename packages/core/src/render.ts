@@ -57,7 +57,7 @@ const REASSURANCE = [
   "You're doing fine. Reading an error like this is how everyone learns a new language.",
 ];
 
-export function toMarkdown(e: Explanation, language = '', depth: Depth = 'balanced'): string {
+export function toMarkdown(e: Explanation, line = 0, depth: Depth = 'balanced'): string {
   const parts: string[] = [];
   // Rule-based guesses have no beginner wording; they fall back to the cause.
   const plain = e.plain ?? e.cause;
@@ -68,8 +68,8 @@ export function toMarkdown(e: Explanation, language = '', depth: Depth = 'balanc
   if (depth === 'baby' && e.plain) parts.push('**Why it happened:** ' + e.cause);
   parts.push('**Fix:** ' + e.fix);
 
-  // A fenced block gets a Copy button in the panel.
-  if (e.snippet) parts.push('```' + language.toLowerCase() + '\n' + e.snippet + '\n```');
+  // A fenced block gets a Copy button in the panel; its label says which line the fix goes on.
+  if (e.snippet) parts.push('```' + (line > 0 ? 'line ' + line : '') + '\n' + e.snippet + '\n```');
 
   // The save correlation is the whole point of the product - give it
   // its own paragraph so it is never buried.
@@ -89,7 +89,7 @@ export function toDisplay(input: RenderInput, explanation: Explanation): Display
     language: languageName(input.language),
     location,
     source: input.source || errorTypeOf(input.message) || '',
-    text: toMarkdown(explanation, input.language, depthOf(input.narration)),
+    text: toMarkdown(explanation, line, depthOf(input.narration)),
   };
 }
 

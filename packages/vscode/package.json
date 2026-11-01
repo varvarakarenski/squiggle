@@ -1,23 +1,13 @@
 {
   "name": "squiggle-vscode",
-  "displayName": "Squiggle",
+  "displayName": "Squiggle - Error Explainer",
   "description": "Explains errors in plain language.",
   "version": "0.1.0",
   "publisher": "varvarakarenski",
   "license": "MIT",
   "icon": "media/logo.png",
-  "categories": [
-    "Education",
-    "Programming Languages"
-  ],
-  "keywords": [
-    "errors",
-    "explain",
-    "beginner",
-    "python",
-    "typescript",
-    "javascript"
-  ],
+  "categories": ["Education", "Programming Languages"],
+  "keywords": ["errors", "explain", "beginner", "python", "typescript", "javascript"],
   "repository": {
     "type": "git",
     "url": "https://github.com/varvarakarenski/squiggle"

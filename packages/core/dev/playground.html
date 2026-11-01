@@ -438,16 +438,16 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const post = (m) => window.postMessage(m, '*');
 let reported = new Map(); // key -> card id, like connection.ts
 
-function toMarkdown(e) {
+function toMarkdown(e, line) {
   const parts = ['**' + e.headline + '**', e.cause, '**Fix:** ' + e.fix];
-  if (e.snippet) parts.push('```python\n' + e.snippet + '\n```');
+  if (e.snippet) parts.push('```line ' + line + '\n' + e.snippet + '\n```');
   return parts.join('\n\n');
 }
 
 async function explainCard(id, d, lines, animate) {
   const base = Explainer.lookupInLibrary(d.message, 'python') || Explainer.explainUnknown(d.message, 'python');
   const suggestion = Explainer.suggestFix(d.message, lines[d.line], lines.join('\n'));
-  const text = toMarkdown({ ...base, ...suggestion });
+  const text = toMarkdown({ ...base, ...suggestion }, d.line + 1);
   post({ type: 'start', id, title: d.message, language: 'python', location: `${FILE}:${d.line + 1}`, source: 'Pylance' });
   if (animate && !reduceMotion) {
     await sleep(400);

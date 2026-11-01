@@ -1,7 +1,4 @@
-![Squiggle Demo](../images/squiggle_demo.png)
-# Installing Squiggle
-
-Squiggle can be found on Visual Studio Code Marketplace! Find us at https://marketplace.visualstudio.com/items?itemName=varvarakarenski.squiggle-vscode 
+<img src="../images/logo.png" alt="Squiggle logo" width="120">
 
 # Squiggle
 
@@ -9,13 +6,17 @@ Squiggle is a VS Code extension for people learning a new programming language. 
 
 We were inspired by the little red squiggle you get under spelling errors!
 
----
+![Squiggle demo](../images/squiggle_demo.png)
 
-## The problem
+## Installing
 
-**Who it's for:** people learning a new programming language, such as **Python, JavaScript or TypeScript**. That includes students in their first real editor and developers picking up a second language.
+Get Squiggle on the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=varvarakarenski.squiggle-vscode).
 
-**The problem:** error messages are written for people who already know the language. `TypeError: Cannot read properties of undefined (reading 'map')` or `error TS2339` don't help someone three weeks in. The usual fix is to copy the error, leave the editor, search, and read an answer written for experts. Confusing first errors are one of the most common reasons learners give up.
+**Requirements**
+- [VS Code](https://code.visualstudio.com/) 1.106 or newer.
+- For Python, Microsoft's Python extension.
+
+After installing, open the **Squiggle** tab in the *secondary* sidebar. Troubleshooting tips are in [INSTALL.md](INSTALL.md).
 
 ---
 
@@ -58,17 +59,15 @@ Errors outside the library still get a general explanation from pattern rules.
 - **The extension** watches the errors VS Code reports and shows the explanation panel.
 - **Explanations** come from a hand-written library of common errors first. Repeat errors come from a saved cache, and anything else is matched by pattern rules. Everything runs inside VS Code on your computer - making Squiggle instant, free, and offline.
 
-**Try it:** run `npm install`, then `npm run dev` to start the core. Then open this repo in VS Code and press **F5**, and open the **Squiggle** tab in the sidebar. Full steps are in [INSTALL.md](INSTALL.md).
-
 ---
 
-## How it was made
+## Development
 
-We built Squiggle in TypeScript: a VS Code extension, a Node.js core, and a WebSocket connection between them. We wrote the error library by hand and checked it against real error messages from Python, JavaScript and TypeScript.
+1. Run `npm install` in the repo root and in `packages/vscode`.
+2. Open this repo in VS Code and press **F5** to launch the extension in a new window.
+3. Open the **Squiggle** tab in the secondary sidebar.
 
-**AI declaration**
-- **Building it:** we used Claude Code (Anthropic) to help with scaffolding, UI work and writing library entries. The team reviewed and committed every change.
-- **Inside the product:** Squiggle uses no AI. Every explanation comes from our hand-written library and rules, and nothing leaves your computer. Squiggle only changes your code when you click **Fix it for me**, and that fix comes from simple rules or VS Code's own quick fixes, never AI.
+`npm run dev` starts the core on its own as a WebSocket server, for testing without VS Code.
 
 ---
 
@@ -78,4 +77,10 @@ We built Squiggle in TypeScript: a VS Code extension, a Node.js core, and a WebS
 - **Jupyter notebooks:** a Chrome extension that explains failing cells and finds *your* line in long pandas or NumPy tracebacks.
 - **Code.org:** explanations at a student reading level for K–12 classrooms, with strict privacy defaults.
 - **Terminal and runtime errors:** explain crashes, not just squiggles.
-- **More languages**, and publishing to the VS Code Marketplace and Open VSX.
+- **More languages** coming soon!
+
+---
+
+## License
+
+[MIT](../packages/vscode/LICENSE)

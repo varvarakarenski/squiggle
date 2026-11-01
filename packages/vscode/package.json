@@ -2,16 +2,28 @@
   "name": "squiggle-vscode",
   "displayName": "Squiggle",
   "description": "Explains errors in plain language.",
-  "version": "0.0.1",
+  "version": "0.1.0",
+  "publisher": "varvarakarenski",
+  "license": "MIT",
   "icon": "media/logo.png",
-  "categories": ["Education", "Programming Languages"],
-  "keywords": ["errors", "explain", "beginner", "python", "typescript", "javascript"],
+  "categories": [
+    "Education",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "errors",
+    "explain",
+    "beginner",
+    "python",
+    "typescript",
+    "javascript"
+  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/shlok-afk/blank-page-hackathon"
+    "url": "https://github.com/varvarakarenski/squiggle"
   },
   "engines": {
-    "vscode": "^1.85.0"
+    "vscode": "^1.106.0"
   },
   "main": "./dist/extension.js",
   "activationEvents": [
@@ -94,7 +106,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
-    "@types/vscode": "^1.85.0",
+    "@types/vscode": "^1.106.0",
     "esbuild": "^0.28.2",
     "typescript": "^5.4.0"
   }

@@ -1,12 +1,11 @@
 # Installing Squiggle
 
-Squiggle isn't published yet, so for now you run it from source in VS Code's Extension Development Host.
+Squiggle can be found on Visual Studio Code Marketplace! Find us at https://marketplace.visualstudio.com/items?itemName=varvarakarenski.squiggle-vscode 
 
 ## Requirements
 
-- [Node.js](https://nodejs.org/) 20 or newer
-- [VS Code](https://code.visualstudio.com/) 1.85 or newer
-- Git
+- [VS Code](https://code.visualstudio.com/) 1.106 or newer
+- If you're planning on using Squiggle with Python, ensure you have Microsoft's Python extension installed.
 
 ## Setup
 
@@ -33,18 +32,8 @@ No errors handy? Open `demo/broken.py` or `demo/broken.ts`, or run **Squiggle: P
 
 `npm run dev` runs the core as a WebSocket server on `localhost:4321`, for plugins for other editors. The VS Code extension doesn't use it.
 
-## Packaging
-
-```sh
-cd packages/vscode
-npx @vscode/vsce package   # makes squiggle-vscode-<version>.vsix
-```
-
 ## Troubleshooting
 
-- **No explanations show up:** check **Output → Extension Host** in the development window for errors.
-- **Extension doesn't load:** rebuild it with `npm run build --prefix packages/vscode` and press F5 again.
-
-## Future plans
-
-Squiggle will be published to the VS Code Marketplace and Open VSX, so installing it will be one click with no cloning or F5.
+- **No Python explanations:** install the Python extension.
+- **Panel not showing:** make sure you have the *secondary sidebar* open.
+- **Explanation takes a minute:** Squiggle waits until you stop typing. You can change the wait time with the squiggle.patience setting.
